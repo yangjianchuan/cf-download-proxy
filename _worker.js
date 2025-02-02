@@ -90,9 +90,11 @@ export default {
                 }
             });
         }
-        request.redirect = "follow";
         try{
-            let res = await fetch(goUrl, request);
+            let res = await fetch(goUrl, {
+                ...request,
+                redirect:"follow"
+            });
             return res;
         }catch(e){
             return new Response(`fetch 错误: ${e}`, {
