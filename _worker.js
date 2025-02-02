@@ -90,6 +90,18 @@ export default {
                 }
             });
         }
-        return fetch(goUrl, request);
+        request.redirect = "follow";
+        try{
+            let res = await fetch(goUrl, request);
+            return res;
+        }catch(e){
+            return new Response(`fetch 错误: ${e}`, {
+                status:503,
+                headers: {
+                    "content-type": "text/test;charset=utf-8"
+                }
+            });
+        }
+        
     },
 };
