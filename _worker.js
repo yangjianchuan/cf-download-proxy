@@ -78,32 +78,44 @@ export default {
                 }
             });
         }
-        const go = url.pathname.substring(1)+url.search;
+        const go = url.pathname.substring(1) + url.search;
         let goUrl;
-        try{
+        try {
             goUrl = new URL(go);
-        }catch(e){
+        } catch (e) {
             return new Response(`错误：${go} 不是一个正确的url : ${e}`, {
-                status:404,
+                status: 404,
                 headers: {
                     "content-type": "text/test;charset=utf-8"
                 }
             });
         }
-        try{
-            let res = await fetch(goUrl, {
-                ...request,
-                redirect:"follow"
+        try {
+            let res = await fetch(goUrl, request);
+            if (res.status < 300 || res.status > 399) { // 没有重定向则直接返回
+                return res;
+            }
+            //处理重定向
+            const loc = res.headers.get("Location");
+            if(!loc){
+                return res;
+            }
+            const toUrl = new URL(loc,goUrl);
+            const newHeaders = new Headers(res.headers);
+            newHeaders.set("Location",`${url.origin}/${toUrl}`);
+            return new Response(res.body,{
+                headers:newHeaders,
+                status:res.status,
+                statusText:res.statusText
             });
-            return res;
-        }catch(e){
+        } catch (e) {
             return new Response(`fetch 错误: ${e}`, {
-                status:503,
+                status: 503,
                 headers: {
                     "content-type": "text/test;charset=utf-8"
                 }
             });
         }
-        
+
     },
 };
