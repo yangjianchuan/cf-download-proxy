@@ -93,20 +93,19 @@ export default {
         try {
             let res = await fetch(goUrl, request);
             if (res.status < 300 || res.status > 399) { // 没有重定向则直接返回
-                
                 // 处理content-type,不返回html类型，否则会被浏览器当成html解析，导致无法下载
                 const newHeaders = new Headers(res.headers);
                 let contentType = newHeaders.get("content-type");
                 if (contentType?.includes("text/html")) {
                     contentType = contentType.replace("text/html", "text/cf-html");
                     newHeaders.set("content-type", contentType);
+                    return new Response(res.body, {
+                        headers: newHeaders,
+                        status: res.status,
+                        statusText: res.statusText
+                    });
                 }
-
-                return new Response(res.body, {
-                    headers: newHeaders,
-                    status: res.status,
-                    statusText: res.statusText
-                });
+                return res;
             }
             //处理重定向
             const loc = res.headers.get("Location");
