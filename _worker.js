@@ -105,7 +105,7 @@ export default {
             newHeaders.set("Location",`${url.origin}/${toUrl}`);
 
             // 处理content-type,不返回html类型，否则会被浏览器当成html解析，导致无法下载
-            const contentType = newHeaders.get("content-type");
+            let contentType = newHeaders.get("content-type");
             if(contentType?.includes("text/html")){
                 contentType = contentType.replace("text/html","text/cf-html");
                 newHeaders.set("content-type", contentType);
