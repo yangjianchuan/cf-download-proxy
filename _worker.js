@@ -6,12 +6,7 @@ export default {
         try {
             goUrl = new URL(go);
         } catch (e) {
-            return new Response(`错误：${go} 不是一个正确的url : ${e}`, {
-                status: 404,
-                headers: {
-                    "content-type": "text/plain;charset=utf-8"
-                }
-            });
+            return env.ASSETS.fetch(new Request(new URL(go, request.url)));
         }
         if (goUrl.protocol === "ws:") {
             goUrl.protocol = "http:";
