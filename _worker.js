@@ -86,48 +86,36 @@ export default {
             return new Response(`错误：${go} 不是一个正确的url : ${e}`, {
                 status: 404,
                 headers: {
-                    "content-type": "text/test;charset=utf-8"
+                    "content-type": "text/plain;charset=utf-8"
                 }
             });
         }
         try {
             let res = await fetch(goUrl, request);
-            if (res.status < 300 || res.status > 399) { // 没有重定向则直接返回
-                // 处理content-type,不返回html类型，否则会被浏览器当成html解析，导致无法下载
-                const newHeaders = new Headers(res.headers);
-                let contentType = newHeaders.get("content-type");
-                if (contentType?.includes("text/html")) {
-                    contentType = contentType.replace("text/html", "text/cf-html");
-                    newHeaders.set("content-type", contentType);
-                    return new Response(res.body, {
-                        headers: newHeaders,
-                        status: res.status,
-                        statusText: res.statusText
-                    });
+            // 处理content-type,不返回html类型，否则会被浏览器当成html解析，导致无法下载
+            let contentType = res.headers.get("content-type");
+            if (contentType?.includes("text/html")) {
+                contentType = contentType.replace("text/html", "text/cf-html");
+                res.headers.set("content-type", contentType);
+            }
+            // 如果是重定向的话，处理一下重定向地址，改成当前worker的地址
+            if (res.status >= 300 && res.status < 400) {
+                //处理重定向
+                const loc = res.headers.get("Location");
+                if (loc) {
+                    const toUrl = new URL(loc, goUrl);
+                    res.headers.set("Location", `${url.origin}/${toUrl}`);
                 }
-                return res;
             }
-            //处理重定向
-            const loc = res.headers.get("Location");
-            if (!loc) {
-                return res;
-            }
-            const toUrl = new URL(loc, goUrl);
-            const newHeaders = new Headers(res.headers);
-            newHeaders.set("Location", `${url.origin}/${toUrl}`);
-            return new Response(res.body, {
-                headers: newHeaders,
-                status: res.status,
-                statusText: res.statusText
-            });
+            //没有特殊情况就直接返回
+            return res;
         } catch (e) {
             return new Response(`fetch 错误: ${e}`, {
                 status: 503,
                 headers: {
-                    "content-type": "text/test;charset=utf-8"
+                    "content-type": "text/plain;charset=utf-8"
                 }
             });
         }
-
     },
 };
