@@ -1,5 +1,18 @@
 export default {
     async fetch(request, env, ctx) {
+        //跨域预请求直接同意
+        if (request.method === "OPTIONS") {
+            return new Response(null, {
+                status: 204,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS",
+                    "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers") || "*",
+                    "Access-Control-Max-Age": "86400"
+                }
+            });
+        }
+
         const url = new URL(request.url);
         const go = url.pathname.substring(1) + url.search;
         let goUrl;
@@ -34,6 +47,9 @@ export default {
             }
 
             const headers = new Headers(res.headers);
+            headers.set("Access-Control-Allow-Origin", "*");
+            headers.set("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS");
+            headers.set("Access-Control-Allow-Headers", request.headers.get("Access-Control-Request-Headers") || "*");
             // 处理content-type,不返回html类型，否则会被浏览器当成html解析，导致无法下载
             let contentType = headers.get("content-type");
             if (contentType?.includes("text/html")) {
