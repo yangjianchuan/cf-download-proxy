@@ -4,79 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 页面不存在</title>
+    <title>页面不存在</title>
     <style>
         :root {
-            color-scheme: dark;
+            font-size: min(16px, 3vmin);
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
+        html,
         body {
+            border: 0;
+            padding: 0;
             margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: #e2e8f0;
-        }
-
-        .card {
-            width: min(92vw, 36rem);
-            padding: 2.5rem;
-            border-radius: 1rem;
-            background: rgba(15, 23, 42, 0.78);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-            text-align: center;
-        }
-
-        .code {
-            margin: 0;
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            color: #38bdf8;
-        }
-
-        h1 {
-            margin: 0.75rem 0 0;
-            font-size: 1.8rem;
-        }
-
-        p {
-            margin: 1rem 0 0;
-            line-height: 1.7;
-            color: #cbd5e1;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 1.5rem;
-            padding: 0.85rem 1.2rem;
-            border-radius: 0.75rem;
-            color: #0f172a;
-            background: #38bdf8;
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        a:hover {
-            background: #7dd3fc;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 
 <body>
-    <main class="card">
-        <p class="code">404</p>
-        <h1>页面不存在</h1>
-        <p>你访问的资源不存在，或者链接已失效。请检查地址是否正确。</p>
-        <a href="/">返回首页</a>
-    </main>
+    <div style="
+        display: flex;
+        width: 100%;
+        min-height: 100%;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    ">
+        <svg style="width: 10rem; height: 10rem; margin-top: 2rem;" xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 375 375" preserveAspectRatio="xMidYMid meet" version="1.0">
+            <path fill="#38b6ff"
+                d="M 48 78 L 187.5 36 L 327 78 L 327 190 C 327 257 280 318 215 334 L 187.5 341 L 160 334 C 95 318 48 257 48 190 Z M 187.5 72 C 176 72 166.5 81.5 166.5 93 C 166.5 104.5 176 114 187.5 114 C 199 114 208.5 104.5 208.5 93 C 208.5 81.5 199 72 187.5 72 Z M 165 150 L 165 171 L 177 171 L 177 252 L 165 252 L 165 273 L 219 273 L 219 252 L 207 252 L 207 150 Z"
+                fill-opacity="1" fill-rule="nonzero" />
+        </svg>
+        <h1 style="font-size: 2.8rem; margin-bottom: 0;">404</h1>
+        <h2 style="font-size: 2rem; margin-bottom: 1rem;">页面不存在</h2>
+        <div style="font-size: 1.1rem; margin-bottom: 2rem; color: red;">你访问的资源不存在，或者链接已失效</div>
+        <a href="/" style="
+            color: rgb(255, 211, 211);
+            font-size: 1.3rem;
+            background-color: rgb(37, 37, 37);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            display: inline-flex;
+            text-decoration: none;
+        ">返回首页</a>
+    </div>
 </body>
 
 </html>
