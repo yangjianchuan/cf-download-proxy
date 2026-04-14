@@ -110,6 +110,7 @@ wrangler deploy --minify
 本仓库已经新增 GitHub Actions 工作流：
 
 - `.github/workflows/deploy.yml`
+- `.assetsignore` 用于避免 `_worker.js` 被当作公开静态资源上传到 `ASSETS`
 
 当前工作流具备这些保护：
 

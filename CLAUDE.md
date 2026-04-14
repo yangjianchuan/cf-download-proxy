@@ -28,6 +28,7 @@ There is no single-test command because there is no automated test harness; vali
 ## Deployment
 
 - `wrangler.toml` uses `_worker.js` as `main` and binds the repo root as `ASSETS`.
+- `.assetsignore` must exclude `_worker.js` so Wrangler does not try to upload the worker entrypoint as a public asset.
 - `.github/workflows/deploy.yml` deploys to Cloudflare Workers.
 - Auto-deploy runs on pushes to `main` only when deployment-relevant files change, and also supports `workflow_dispatch`.
 - The workflow validates `CLOUDFLARE_API_TOKEN`, runs `wrangler whoami`, then `wrangler deploy --dry-run --minify`, then `wrangler deploy --minify`.
@@ -61,6 +62,12 @@ When changing proxy URL format, supported protocols, or examples, update both `_
 ### Content strategy
 
 `index.html` contains substantial static copy and JSON-LD for search/discoverability. Avoid splitting this into generated assets or JS-rendered templates unless explicitly requested.
+
+## Deployment pitfall
+
+- Symptom: `wrangler deploy --dry-run --minify` or `wrangler deploy --minify` fails with `Uploading a Pages _worker.js file as an asset`.
+- Root cause: the repo root is bound as `ASSETS`, so Wrangler scans `_worker.js` as a static asset unless it is explicitly ignored.
+- Fix: keep a root `.assetsignore` file that excludes `_worker.js` (and optionally repo metadata directories such as `.git` and `.github`).
 
 ## Editing guidance
 
