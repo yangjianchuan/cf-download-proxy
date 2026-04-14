@@ -1,0 +1,7 @@
+name = "cf-download-proxy"
+main = "_worker.js"
+compatibility_date = "2026-04-14"
+
+[assets]
+directory = "."
+binding = "ASSETS"
