@@ -11,6 +11,7 @@ on:
       - 'logo.svg'
       - 'favicon.ico'
       - 'wrangler.toml'
+      - '.assetsignore'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
