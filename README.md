@@ -39,7 +39,25 @@ wss://你的域名/wss://echo.websocket.events/
 - WebSocket 升级请求直接透传
 - 上游返回重定向时，会把 `Location` 改写为当前代理域名
 - 上游返回 `text/html` 时，会改写为 `text/cf-html`，避免浏览器把下载内容当 HTML 直接渲染
+- 对安全的 `GET` 下载响应使用 Cloudflare 边缘缓存，重复下载可能更快
 - 非代理路径会回退到静态资源服务
+
+## 边缘缓存加速
+
+Worker 会对适合缓存的 `GET` 下载响应使用 Cloudflare Cache API：
+
+- 第一次请求通常是 `X-Proxy-Cache: MISS`，同一 Cloudflare 数据中心内的重复请求可能变成 `X-Proxy-Cache: HIT`
+- 缓存是数据中心本地缓存，不是全局缓存或 Tiered Cache；不同地区的首次请求仍可能较慢
+- 带 `Authorization`、`Cookie`、签名参数、`Cache-Control: no-store` / `no-cache` / `private` 的请求会绕过缓存
+- 上游返回重定向、`Set-Cookie`、`Vary: *`、`no-store`、非 `200` 或缺少 `Content-Length` 的响应会绕过缓存
+- `Range` 请求不会把上游 `206` 响应写入缓存，但如果完整文件已缓存且带 `Content-Length`，后续分片请求可以受益
+
+可用响应头检查缓存状态：
+
+```text
+X-Proxy-Cache: HIT | MISS | BYPASS
+X-Proxy-Cache-Reason: <reason>
+```
 
 ## 本地开发
 
@@ -239,6 +257,7 @@ TTL:
 - 首页能正常打开
 - 输入普通 `https://...` 链接后，能正确生成代理地址
 - 点击打开后，文件下载正常
+- 重复请求安全的 `GET` 下载链接时，可通过 `X-Proxy-Cache` 看到 `MISS` / `HIT` / `BYPASS` 状态
 - 页面里的 `curl` / `wget` / `npm` 等示例命令使用的是当前域名
 - 上游重定向仍然停留在当前代理域名下
 - WebSocket 代理地址仍然正确使用 `ws://` 或 `wss://`

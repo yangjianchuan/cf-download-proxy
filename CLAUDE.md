@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository is a minimal **Cloudflare Workers** project with static assets, not a pure Pages site.
 
-- `_worker.js` is the only server-side entrypoint. It proxies `/<absolute-url>` requests, handles CORS preflight, passes WebSocket upgrades through, rewrites redirect `Location` headers back to the current origin, and rewrites upstream `text/html` to `text/cf-html` so downloads are not rendered as HTML.
+- `_worker.js` is the only server-side entrypoint. It proxies `/<absolute-url>` requests, handles CORS preflight, passes WebSocket upgrades through, rewrites redirect `Location` headers back to the current origin, rewrites upstream `text/html` to `text/cf-html` so downloads are not rendered as HTML, and caches safe GET download responses at the Cloudflare edge.
 - Static files are served through `env.ASSETS.fetch(...)`.
 - `index.html` is intentionally self-contained: markup, styles, SEO/JSON-LD, and all client-side behavior live in one file.
 - `404.html` is a separate static not-found page.
@@ -63,6 +63,18 @@ When changing proxy URL format, supported protocols, or examples, update both `_
 
 `index.html` contains substantial static copy and JSON-LD for search/discoverability. Avoid splitting this into generated assets or JS-rendered templates unless explicitly requested.
 
+### Edge cache behavior
+
+`_worker.js` uses Cloudflare Cache API for conservative download acceleration:
+
+- only safe `GET` requests are eligible for cache lookup/write
+- requests with `Authorization`, `Cookie`, `Cache-Control: no-store` / `no-cache` / `private`, or sensitive signed-URL query keys bypass cache
+- upstream `200` responses with `Content-Length` can be cached unless they include `Set-Cookie`, `Vary: *`, or `Cache-Control: no-store` / `no-cache` / `private`
+- redirects, `206 Partial Content`, WebSocket upgrades, and non-GET requests are not cached
+- `Range` requests can read an already cached full response, but range misses are fetched from upstream and not stored
+- cache status is exposed through `X-Proxy-Cache` and optionally `X-Proxy-Cache-Reason`
+- the cache is local to each Cloudflare data center, so the first request in a region can still be slow
+
 ## Deployment pitfall
 
 - Symptom: `wrangler deploy --dry-run --minify` or `wrangler deploy --minify` fails with `Uploading a Pages _worker.js file as an asset`.
@@ -74,4 +86,5 @@ When changing proxy URL format, supported protocols, or examples, update both `_
 - Prefer keeping `index.html` self-contained unless the user explicitly asks for a refactor.
 - Preserve the current light visual style unless asked to redesign it.
 - For proxy behavior changes, manually verify both standard downloads and WebSocket-style URLs.
-- Be careful when modifying response headers in `_worker.js`: CORS headers, redirect rewriting, and `content-type` rewriting are user-visible behavior.
+- For cache behavior changes, verify `MISS`, repeat-request `HIT`, and auth/cookie/range `BYPASS` cases with deployed Worker responses.
+- Be careful when modifying response headers in `_worker.js`: CORS headers, redirect rewriting, `content-type` rewriting, and `X-Proxy-Cache` headers are user-visible behavior.
