@@ -8,10 +8,13 @@ on:
       - '_worker.js'
       - 'index.html'
       - '404.html'
+      - 'src/**'
       - 'logo.svg'
       - 'favicon.ico'
       - 'wrangler.toml'
       - '.assetsignore'
+      - 'package.json'
+      - 'test/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -40,6 +43,9 @@ jobs:
 
       - name: Check Wrangler version
         run: wrangler --version
+
+      - name: Run automated tests
+        run: npm test
 
       - name: Validate required secret
         run: |
