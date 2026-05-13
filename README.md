@@ -5,7 +5,9 @@
 本仓库包含：
 
 - `_worker.js`：Cloudflare Worker 入口，用于代理 `/<绝对链接>` 请求
-- `index.html`：主页，包含页面结构、样式和前端交互逻辑
+- `index.html`：主页，包含页面结构和 SEO/JSON-LD 内容
+- `src/styles.css`：主页样式
+- `src/app.js` / `src/url-tools.js`：前端交互和 URL 处理逻辑
 - `404.html`：自定义 404 页面
 - `logo.svg` / `favicon.ico`：静态资源
 - `wrangler.toml`：Wrangler 部署配置
@@ -61,7 +63,15 @@ X-Proxy-Cache-Reason: <reason>
 
 ## 本地开发
 
-这个仓库没有构建步骤，通常直接编辑文件即可。
+这个仓库没有构建步骤，通常直接编辑文件即可。自动化测试使用 Node 内置 `node:test`，不需要额外依赖。
+
+### 运行自动化测试
+
+```bash
+npm test
+```
+
+当前测试覆盖 URL 规范化、代理地址生成、WebSocket 地址生成、协议校验，以及 `index.html` 是否加载拆分后的静态 CSS/JS 文件。
 
 ### 本地预览静态页面
 
@@ -135,6 +145,7 @@ wrangler deploy --minify
 - 只在 `main` 分支变更部署相关文件时自动触发
 - 支持 `workflow_dispatch` 手工触发
 - 使用 `concurrency` 避免同一分支重复部署互相覆盖
+- 部署前运行 `npm test`
 - 显式检查 `CLOUDFLARE_API_TOKEN` 是否已配置
 - 部署前执行 `wrangler whoami` 验证身份
 - 部署前执行 `wrangler deploy --dry-run --minify` 做配置校验
@@ -243,6 +254,7 @@ TTL:
 - 仅在 `main` 分支且部署相关文件发生变更时自动触发
 - 支持 `workflow_dispatch` 手工触发
 - 使用 `concurrency` 避免重复部署互相覆盖
+- 执行 `npm test`
 - 部署前检查 `CLOUDFLARE_API_TOKEN`
 - 执行 `wrangler whoami`
 - 执行 `wrangler deploy --dry-run --minify`
@@ -259,6 +271,7 @@ TTL:
 - 点击打开后，文件下载正常
 - 重复请求安全的 `GET` 下载链接时，可通过 `X-Proxy-Cache` 看到 `MISS` / `HIT` / `BYPASS` 状态
 - 页面里的 `curl` / `wget` / `npm` 等示例命令使用的是当前域名
+- `npm test` 通过
 - 上游重定向仍然停留在当前代理域名下
 - WebSocket 代理地址仍然正确使用 `ws://` 或 `wss://`
 - 不存在的页面会返回 `404.html`
